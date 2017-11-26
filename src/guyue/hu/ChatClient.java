@@ -3,8 +3,14 @@ package guyue.hu;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.TextArea;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class ChatClient {
 
@@ -31,6 +37,7 @@ class MyFrame extends Frame {
 		add(chatArea, BorderLayout.NORTH);
 		add(inputArea, BorderLayout.SOUTH);
 		addWindowListener(new Closing());
+		addKeyListener(new SendMessage());
 		pack();
 		setVisible(true);
 	}
@@ -42,5 +49,26 @@ class MyFrame extends Frame {
 			System.exit(0);
 		}
 
+	}
+	
+	class SendMessage extends KeyAdapter {
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+				try {
+					Socket socket = new Socket("127.0.0.1", 18888);
+					DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+					dos.writeUTF(inputArea.getText());
+					chatArea.setText(inputArea.getText());
+					
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 	}
 }
