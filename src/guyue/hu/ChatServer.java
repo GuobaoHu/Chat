@@ -1,7 +1,9 @@
 package guyue.hu;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,6 +17,8 @@ public class ChatServer {
 		
 		try {
 			serverSocket = new ServerSocket(18888);
+		} catch (BindException e) {
+			System.out.println("端口使用中...");
 		} catch	(IOException e) {
 			e.printStackTrace();
 		}
@@ -32,8 +36,11 @@ System.out.println("A client connect!");
 					System.out.println(str);
 				}
 			}
-		} catch (IOException e) {
+		} catch (EOFException e) {
 			System.out.println("Client closed!");
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		} finally {
 			try {
 				if(dis != null) {
