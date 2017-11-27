@@ -3,6 +3,9 @@ package guyue.hu;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -24,25 +27,26 @@ public class ChatClient {
 class MyFrame extends Frame {
 
 	TextArea chatArea = null;
-	TextArea inputArea = null;
+	TextField inputField = null;
 
 	public MyFrame() {
 		super("Chat 1.0");
 	}
 
 	public void launch() {
-		chatArea = new TextArea("", 20, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
-		inputArea = new TextArea("", 5, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
+		chatArea = new TextArea();
+		inputField = new TextField();
 		chatArea.setEditable(false);
+		setBounds(100, 100, 400, 400);
 		add(chatArea, BorderLayout.NORTH);
-		add(inputArea, BorderLayout.SOUTH);
+		add(inputField, BorderLayout.SOUTH);
 		addWindowListener(new Closing());
-		addKeyListener(new SendMessage());
+		inputField.addActionListener(new EnterListener());
 		pack();
 		setVisible(true);
 	}
 
-	class Closing extends WindowAdapter {
+	private class Closing extends WindowAdapter {
 
 		@Override
 		public void windowClosing(WindowEvent arg0) {
@@ -50,25 +54,15 @@ class MyFrame extends Frame {
 		}
 
 	}
-	
-	class SendMessage extends KeyAdapter {
+
+	private class EnterListener implements ActionListener {
 
 		@Override
-		public void keyPressed(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				try {
-					Socket socket = new Socket("127.0.0.1", 18888);
-					DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-					dos.writeUTF(inputArea.getText());
-					chatArea.setText(inputArea.getText());
-					
-				} catch (UnknownHostException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
+		public void actionPerformed(ActionEvent arg0) {
+			String str = inputField.getText();
+			chatArea.setText(str);
+			inputField.setText("");
 		}
-		
+
 	}
 }
