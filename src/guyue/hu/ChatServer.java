@@ -13,9 +13,7 @@ public class ChatServer {
 			String chatContent = null;
 			while(true) {
 				socket = serverSocket.accept();
-				DataInputStream dis = new DataInputStream(socket.getInputStream());
-				chatContent = dis.readUTF();
-				
+System.out.println("A client connect!");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
