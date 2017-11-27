@@ -8,17 +8,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ChatServer {
+	boolean connect = false;//客户端是否连接上服务器端
+	ServerSocket serverSocket = null;
+	
 	public static void main(String[] args) {
-		boolean connect = false;//客户端是否连接上服务器端
-		ServerSocket serverSocket = null;
-		String str = null;
-		Socket socket = null;
-		DataInputStream dis = null;
-		
+		new ChatServer().launch();
+	}
+	
+	public void launch() {
 		try {
 			serverSocket = new ServerSocket(18888);
 		} catch (BindException e) {
 			System.out.println("端口使用中...");
+			System.exit(0);
 		} catch	(IOException e) {
 			e.printStackTrace();
 		}
@@ -26,32 +28,59 @@ public class ChatServer {
 		try {
 			connect = true;
 			while(connect) {
-				boolean accepted = false;//服务器端是否接收
-				socket = serverSocket.accept();
-				dis = new DataInputStream(socket.getInputStream());
-				accepted = true;
+				Socket socket = serverSocket.accept();
 System.out.println("A client connect!");
-				while(accepted) {
-					str = dis.readUTF();
-					System.out.println(str);
-				}
+				Client c = new Client(socket);
+				new Thread(c).start();
 			}
-		} catch (EOFException e) {
-			System.out.println("Client closed!");
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				if(dis != null) {
-					dis.close();
-				}
-				if(socket != null) {
-					socket.close();
-				}
+				serverSocket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	class Client implements Runnable {
+		private Socket socket;
+		private DataInputStream dis = null;
+		private boolean accepted = false;
+		private String str = null;
+		
+		public Client(Socket socket) {
+			this.socket = socket;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				accepted = true;
+				dis = new DataInputStream(socket.getInputStream());
+				while(accepted) {
+					str = dis.readUTF();
+					System.out.println(str);
+				}
+			} catch (EOFException e) {
+				System.out.println("Client closed!");
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(dis != null) {
+						dis.close();
+					}
+					if(socket != null) {
+						socket.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
 	}
 }
