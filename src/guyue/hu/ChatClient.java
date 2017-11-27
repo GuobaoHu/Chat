@@ -20,6 +20,7 @@ public class ChatClient {
 	public static void main(String[] args) {
 		MyFrame myFrame = new MyFrame();
 		myFrame.launch();
+		
 	}
 
 }
@@ -28,6 +29,8 @@ class MyFrame extends Frame {
 
 	TextArea chatArea = null;
 	TextField inputField = null;
+	String str = null;
+	DataOutputStream dos = null;
 
 	public MyFrame() {
 		super("Chat 1.0");
@@ -44,6 +47,18 @@ class MyFrame extends Frame {
 		inputField.addActionListener(new EnterListener());
 		pack();
 		setVisible(true);
+		connect();
+	}
+	
+	public void connect() {
+		try {
+			Socket socket = new Socket("127.0.0.1", 18888);
+			dos = new DataOutputStream(socket.getOutputStream());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private class Closing extends WindowAdapter {
@@ -59,8 +74,15 @@ class MyFrame extends Frame {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			String str = inputField.getText();
+			str = inputField.getText();
 			chatArea.setText(str);
+			try {
+				dos.writeUTF(str);
+				dos.flush();
+				dos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			inputField.setText("");
 		}
 
