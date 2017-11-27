@@ -30,6 +30,7 @@ class MyFrame extends Frame {
 	TextArea chatArea = null;
 	TextField inputField = null;
 	String str = null;
+	Socket socket = null;
 	DataOutputStream dos = null;
 
 	public MyFrame() {
@@ -52,7 +53,7 @@ class MyFrame extends Frame {
 	
 	public void connect() {
 		try {
-			Socket socket = new Socket("127.0.0.1", 18888);
+			socket = new Socket("127.0.0.1", 18888);
 			dos = new DataOutputStream(socket.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -60,11 +61,23 @@ class MyFrame extends Frame {
 			e.printStackTrace();
 		}
 	}
+	
+	public void closeAll() {
+		try {
+			dos.close();
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 	private class Closing extends WindowAdapter {
 
 		@Override
 		public void windowClosing(WindowEvent arg0) {
+			closeAll();
 			System.exit(0);
 		}
 
@@ -79,7 +92,6 @@ class MyFrame extends Frame {
 			try {
 				dos.writeUTF(str);
 				dos.flush();
-				dos.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

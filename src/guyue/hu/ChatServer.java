@@ -7,17 +7,25 @@ import java.net.Socket;
 
 public class ChatServer {
 	public static void main(String[] args) {
+		boolean connect = false;//客户端是否连接上服务器端
+		
 		try {
 			ServerSocket serverSocket = new ServerSocket(18888);
+			connect = true;
 			Socket socket = null;
-			String chatContent = null;
-			while(true) {
+			String str = null;
+			DataInputStream dis = null;
+			while(connect) {
+				boolean accepted = false;//服务器端是否接收
 				socket = serverSocket.accept();
+				dis = new DataInputStream(socket.getInputStream());
+				accepted = true;
 System.out.println("A client connect!");
-				DataInputStream dis = new DataInputStream(socket.getInputStream());
-				String str = dis.readUTF();
+				while(accepted) {
+					str = dis.readUTF();
+					System.out.println(str);
+				}
 				dis.close();
-System.out.print(str);	
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
