@@ -27,6 +27,7 @@ public class ChatServer {
 			e.printStackTrace();
 		}
 		
+		//每连接上一个客户端，则起一个线程，并收集对应的线程类
 		try {
 			connect = true;
 			while(connect) {
@@ -53,11 +54,20 @@ System.out.println("A client connect!");
 		private DataOutputStream dos = null;
 		private boolean accepted = false;
 		
-		public Client(Socket socket) {
+		public Client(Socket socket) { 
+			//在构造方法里面初始化输入输出管道
 			this.socket = socket;
+			try {
+				dis = new DataInputStream(socket.getInputStream());
+				dos = new DataOutputStream(socket.getOutputStream());
+				accepted = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		public void send(String str) {
+			//发送数据
 			try {
 				dos.writeUTF(str);
 				dos.flush();
@@ -65,12 +75,11 @@ System.out.println("A client connect!");
 				e.printStackTrace();
 			}
 		}
+		
 		@Override
 		public void run() {
+			//线程启动时接收客户端数据并发送到其他客户端
 			try {
-				accepted = true;
-				dis = new DataInputStream(socket.getInputStream());
-				dos = new DataOutputStream(socket.getOutputStream());
 				while(accepted) {
 					String str = dis.readUTF();
 System.out.println(str);
@@ -78,6 +87,12 @@ System.out.println(str);
 						Client c = clients.get(i);
 						c.send(str);
 					}
+					
+					//用Iterator在循环时会锁定Client对象，效率不高
+					/*for(Iterator<Client> ite = clients.iterator(); ite.hasNext(); ) {
+						Client c = ite.next();
+						c.send(str);
+					}*/
 				}
 			} catch (EOFException e) {
 				System.out.println("Client closed!");
