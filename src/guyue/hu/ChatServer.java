@@ -1,12 +1,15 @@
 package guyue.hu;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatServer {
 	boolean connect = false;//客户端是否连接上服务器端
@@ -94,12 +97,16 @@ System.out.println(str);
 						c.send(str);
 					}*/
 				}
+			} catch (SocketException e) {
+				System.out.println("a client closed!");
 			} catch (EOFException e) {
 				System.out.println("Client closed!");
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
 				try {
+					accepted = false;
+					clients.remove(this);
 					if(dis != null) {
 						dis.close();
 					}

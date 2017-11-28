@@ -34,6 +34,7 @@ class MyFrame extends Frame {
 	DataOutputStream dos = null;
 	DataInputStream dis = null;
 	private boolean isReceive = false;
+	Thread tThread = new Thread(new Receive());
 
 	public MyFrame() {
 		super("Chat 1.0");
@@ -51,7 +52,7 @@ class MyFrame extends Frame {
 		pack();
 		setVisible(true);
 		connect();
-		new Thread(new Receive()).start();
+		tThread.start();
 	}
 	
 	public void connect() {
@@ -71,9 +72,11 @@ class MyFrame extends Frame {
 		//关闭所有的流
 		try {
 			isReceive = false;
-			dos.close();
-			dis.close();
-			socket.close();
+			if(!(tThread.isAlive())) {
+				dos.close();
+				dis.close();
+				socket.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,9 +93,9 @@ class MyFrame extends Frame {
 System.out.println(str);
 					chatArea.setText(chatArea.getText() + str + "\r\n");
 				}
-			} catch (SocketException e) {
+			} /*catch (SocketException e) {
 				System.out.println("Client closed!");
-			} catch (IOException e) {
+			} */catch (IOException e) {
 					e.printStackTrace();
 			}
 			
